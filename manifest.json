@@ -1,0 +1,37 @@
+{
+  "manifest_version": 2,
+  "name": "ChatGPT Enhance",
+  "version": "1.0",
+  "description": "Enhance the ChatGPT chat page with additional features.",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "browser_action": {
+    "default_icon": "images/icon.svg",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*"
+      ],
+      "js": [
+        "content_script.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  }
+}
