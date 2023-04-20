@@ -1,37 +1,56 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "ChatGPT Enhance",
   "version": "1.0",
   "description": "Enhance the ChatGPT chat page with additional features.",
   "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
+    "1024": "images/icons/1024.png",
+    "128": "images/icons/128.png",
+    "16": "images/icons/16.png",
+    "256": "images/icons/256.png",
+    "32": "images/icons/32.png",
+    "48": "images/icons/48.png",
+    "512": "images/icons/512.png",
+    "64": "images/icons/64.png",
+    "72": "images/icons/72.png",
+    "80": "images/icons/80.png",
+    "92": "images/icons/92.png"
   },
-  "browser_action": {
-    "default_icon": "images/icon.svg",
-    "default_popup": "popup.html"
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon":  "images/icons/64.png"
   },
   "permissions": [
-    "activeTab",
-    "tabs",
-    "http://*/*",
-    "https://*/*"
+    "activeTab"
   ],
+  "externally_connectable": {
+    "matches": [
+      "https://*.jiangliuhong.top:*/*"
+    ]
+  },
   "content_scripts": [
     {
       "matches": [
-        "https://chatgpt.com/*"
+        "https://chat.openai.com/*"
       ],
       "js": [
         "content_script.js"
-      ],
-      "run_at": "document_end"
+      ]
     }
   ],
   "background": {
-    "scripts": [
-      "background.js"
-    ]
-  }
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "https://chat.openai.com/*"
+      ],
+      "resources": [
+        "index.js","index.css"
+      ],
+      "use_dynamic_url": true
+    }
+  ]
 }
