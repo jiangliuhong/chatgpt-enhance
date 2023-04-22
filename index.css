@@ -1,3 +1,25 @@
-.chatgpt_enhance{
-    width: 200px;
+.chatgpt_enhance {
+    width: 100%;
+}
+
+.chatgpt_enhance_line {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.chatgpt_enhance_line_item {
+    flex-basis: calc(33.33% - 10px);
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.chatgpt_enhance_line_item select {
+    margin-left: 10px;
+    width: calc(100% - 60px);
 }

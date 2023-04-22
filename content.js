@@ -1,0 +1,7 @@
+
+
+const initMainContent = () => {
+
+}
+
+export {initMainContent}

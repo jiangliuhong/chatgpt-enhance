@@ -20,6 +20,7 @@ function addScript(src) {
     var script = document.createElement('script');
     script.setAttribute('type', 'text/javascript');
     script.setAttribute('src', src);
+    script.setAttribute('type', 'module');
     nodeElement.appendChild(script);
 }
 
