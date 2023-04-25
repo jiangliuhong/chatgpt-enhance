@@ -12,7 +12,8 @@ const ChatGPTEnhance = {
     async init() {
         console.log('ChatGPT Enhance start init');
         this.addWindowFetch();
-        this.addMainContainer();
+        this.addBodyObserver();
+        //this.addMainContainer();
         console.log('ChatGPT Enhance end init');
     },
     addWindowFetch() {
@@ -48,6 +49,32 @@ const ChatGPTEnhance = {
             }
         };
     },
+    /**添加页面Body监听器 */
+    addBodyObserver() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(async (mutation) => {
+                if (mutation.type !== 'childList' && mutation.addedNodes.length == 0) {
+                    return;
+                }
+                const node = mutation.addedNodes[0];
+                if (!node || !node.querySelector) {
+                    return;
+                }
+                await this.handleElementAdded(node);
+            });
+        });
+        observer.observe(document.body, { subtree: true, childList: true });
+    },
+    /** 处理DOM元素添加事件 */
+    async handleElementAdded(e) {
+        // 如果添加的是顶部的版本Model标题，一般是切换聊天框时触发
+        if (e.querySelector('h1.text-4xl')) {
+            this.addMainContainer();
+        }
+        if (document.querySelector('.text-base.xl\\:max-w-3xl')) {
+            this.addMainContainer();
+        }
+    },
     /**
      * 增加模版主容器
      */
@@ -57,11 +84,16 @@ const ChatGPTEnhance = {
             console.warn('not found form textarea')
             return;
         }
-        const container = document.createElement('div')
+        let container = document.createElement('div')
         this.mainContainer = container
         container.id = 'chatgpt-enhance';
         container.className = 'chatgpt_enhance';
-        textarea.parentElement.prepend(container);
+        // 判断主容器是否存在
+        if (textarea.parentElement.querySelector(`#${container.id}`)) {
+            container = textarea.parentElement.querySelector(`#${container.id}`);
+        } else {
+            textarea.parentElement.prepend(container);
+        }
         const templates = Template.getTemplates()
         let templateSelectOptionsHTML = '';
         templates.forEach((template) => {
@@ -141,7 +173,7 @@ const ChatGPTEnhance = {
         const chatgptEnhanceOptions = templateOptions.querySelectorAll(`[name="chatgptEnhanceOptions"]`);
         if (chatgptEnhanceOptions.length > 0) {
             chatgptEnhanceOptions.forEach(chatgptEnhanceOption => {
-                chatgptEnhanceOption.addEventListener('change',dom => this.templateOptionsChangeEvent(dom));
+                chatgptEnhanceOption.addEventListener('change', dom => this.templateOptionsChangeEvent(dom));
             });
         }
     },
