@@ -7,6 +7,8 @@ const ChatGPTEnhance = {
     fetch: (window._fetch = window._fetch || window.fetch),
     mainContainer: null,
     templateInfo: null,
+    templateConfigValues: {},
+    debug: true,
     async init() {
         console.log('ChatGPT Enhance start init');
         this.addWindowFetch();
@@ -18,31 +20,47 @@ const ChatGPTEnhance = {
             if (args[0] !== ApiConversation) {
                 return this.fetch(...args);
             }
-            debugger
+            if (!this.templateInfo || !this.templateInfo.template) {
+                return this.fetch(...args);
+            }
             try {
                 // 解析原始数据
                 const options = args[1];
                 const body = JSON.parse(options.body);
                 const prompt = body.messages[0].content.parts[0];
                 // 处理模版
-                const newPrompt = `Your task is to rewrite the entire text in better words and make it unique with natural language.output shall be in Chinese. The text to rewrite it is this:${prompt}
-            Please write in emotional tone, poetic writing style.`;
+                const variables = {
+                    prompt: prompt
+                }
+                for (const key in this.templateConfigValues) {
+                    variables[key] = this.templateConfigValues[key];
+                }
+                const newPrompt = StringUtils.replaceTemplate(this.templateInfo.template, variables);
+                this.log('new prompt:' + newPrompt);
                 body.messages[0].content.parts[0] = newPrompt;
                 // 执行请求
                 options.body = JSON.stringify(body);
                 return this.fetch(args[0], options);
             } catch (err) {
-                console.error(err);
+                // TODO 增加NotifyMessage提示
+                console.error('解析模版失败,使用原prompt请求.', err);
                 return this.fetch(...args);
             }
         };
     },
+    /**
+     * 增加模版主容器
+     */
     addMainContainer() {
+        const textarea = document.querySelector(`form textarea`);
+        if (!textarea) {
+            console.warn('not found form textarea')
+            return;
+        }
         const container = document.createElement('div')
         this.mainContainer = container
         container.id = 'chatgpt-enhance';
         container.className = 'chatgpt_enhance';
-        const textarea = document.querySelector(`form textarea`);
         textarea.parentElement.prepend(container);
         const templates = Template.getTemplates()
         let templateSelectOptionsHTML = '';
@@ -62,13 +80,12 @@ const ChatGPTEnhance = {
                     <button id="chatgptEnhanceContinue">继续</button>
                 </div>
             </div>
-            <div class="chatgpt_enhance_line" id="chatgptEnhanceOptions">
-                
+            <div class="chatgpt_enhance_line" id="chatgptEnhanceOptions">  
             </div>
         </div>
         `;
         container.querySelector("#chatgptEnhanceContinue").addEventListener('click', () => {
-            console.log('contine button click')
+            this.log('contine button click')
         });
         const templateSelect = container.querySelector("#chatgptEnhanceTemplate")
         container.querySelector("#chatgptEnhanceTemplate").addEventListener('change', () => {
@@ -77,10 +94,21 @@ const ChatGPTEnhance = {
             } else {
                 this.templateInfo = Template.getTemplateInfo(templateSelect.value);
             }
+            // 根据新的模版，设置默认值
+            var newConfigValues = {}
+            if (this.templateInfo != null && this.templateInfo.config) {
+                this.templateInfo.config.forEach(config => {
+                    newConfigValues[config.code] = null;
+                })
+            }
+            this.templateConfigValues = newConfigValues;
             this.addTemplateOptions();
         });
 
     },
+    /**
+     * 新增模版选项HTML内容
+     */
     addTemplateOptions() {
         const templateOptions = this.mainContainer.querySelector("#chatgptEnhanceOptions")
         if (!this.templateInfo) {
@@ -97,7 +125,7 @@ const ChatGPTEnhance = {
             let selectHTML = "";
             if (i < this.templateInfo.config.length) {
                 const config = this.templateInfo.config[i];
-                selectHTML += `<label>${config.name}:</label><select id="chatgpt_enhance_options_${config.name}">`;
+                selectHTML += `<label>${config.name}:</label><select name="chatgptEnhanceOptions" data-code="${config.code}">`;
                 config.options.forEach((option) => {
                     selectHTML += `<option value="${option.code}">${option.name}</option>`;
                 });
@@ -110,6 +138,24 @@ const ChatGPTEnhance = {
             `
         }
         templateOptions.innerHTML = configHTML;
+        const chatgptEnhanceOptions = templateOptions.querySelectorAll(`[name="chatgptEnhanceOptions"]`);
+        if (chatgptEnhanceOptions.length > 0) {
+            chatgptEnhanceOptions.forEach(chatgptEnhanceOption => {
+                chatgptEnhanceOption.addEventListener('change',dom => this.templateOptionsChangeEvent(dom));
+            });
+        }
+    },
+    /** 模版选项值改变事件 */
+    templateOptionsChangeEvent(dom) {
+        const configCode = dom.target.dataset.code;
+        const configValue = dom.target.value
+        this.log(configCode, configValue);
+        this.templateConfigValues[configCode] = configValue;
+    },
+    log(...args) {
+        if (this.debug == true) {
+            console.log(args)
+        }
     }
 }
 
