@@ -1,0 +1,26 @@
+{
+    "globalValue": {
+        "language": [
+            {
+                "code": "Chinese",
+                "name": "中文"
+            },
+            {
+                "code": "English",
+                "name": "英文"
+            }
+        ],
+        "writeTone": [
+            {
+                "code": "emotional",
+                "name": "情感"
+            }
+        ],
+        "wirteStyle": [
+            {
+                "code": "poetic",
+                "name": "诗意"
+            }
+        ]
+    }
+}
