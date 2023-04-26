@@ -1,7 +1,8 @@
 
-import { ApiConversation } from './config.js'
-import { StringUtils } from './utils.js'
+import { ApiConversation, CacheName, Version } from './config.js'
+import { StringUtils, LocalData } from './utils.js'
 import { Template } from './template.js'
+import Client from './client.js'
 
 const ChatGPTEnhance = {
     fetch: (window._fetch = window._fetch || window.fetch),
@@ -11,10 +12,30 @@ const ChatGPTEnhance = {
     debug: true,
     async init() {
         console.log('ChatGPT Enhance start init');
+        await this.initData()
         this.addWindowFetch();
         this.addBodyObserver();
-        //this.addMainContainer();
         console.log('ChatGPT Enhance end init');
+    },
+    async initData() {
+        const version = await Client.requestVersion();
+        // 校验插件版本，提示更新
+        const pluginVersion = version.pluginVersion;
+        if (Version != pluginVersion) {
+            // TODO notify 提醒
+            console.log('发现新版本：' + pluginVersion);
+        }
+        // 校验数据版本，判断是否更新数据缓存
+        const dataVersion = version.dataVersion;
+        const localDataVersion = LocalData.get(CacheName.DataVersion)
+        if (!localDataVersion || localDataVersion != dataVersion) {
+            this.log('start request data')
+            const globalConfig = await Client.requestGlobalConfig();
+            LocalData.setObject(CacheName.GlobalConfig, globalConfig);
+            const templates = await Client.requestTemplates();
+            LocalData.setObject(CacheName.Templates, templates);
+            LocalData.set(CacheName.DataVersion, dataVersion)
+        }
     },
     addWindowFetch() {
         window.fetch = async (...args) => {
@@ -152,6 +173,7 @@ const ChatGPTEnhance = {
             templateOptions.innerHTML = "";
             return;
         }
+        
         let configHTML = "";
         for (var i = 0; i < 3; i++) {
             let selectHTML = "";
@@ -186,7 +208,7 @@ const ChatGPTEnhance = {
     },
     log(...args) {
         if (this.debug == true) {
-            console.log(args)
+            console.log(...args)
         }
     }
 }

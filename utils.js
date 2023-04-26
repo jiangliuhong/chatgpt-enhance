@@ -45,4 +45,24 @@ const StringUtils = {
     }
 }
 
-export { StringUtils }
+const LocalData = {
+    set(key, value) {
+        localStorage.setItem(key, value);
+    },
+    get(key) {
+        return localStorage.getItem(key);
+    },
+    setObject(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+    },
+    getObject(key) {
+        const value = localStorage.getItem(key);
+        if (value) {
+            return JSON.parse(value);
+        } else {
+            return null;
+        }
+    }
+}
+
+export { StringUtils, LocalData }

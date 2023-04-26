@@ -2,11 +2,38 @@
     {
         "code": "content_rewrite",
         "name": "重写文案",
-        "template":"Your task is to rewrite the entire text in better words and make it unique with natural language.output shall be in ${language}. The text to rewrite it is this:${prompt}.{{ if (tone) }}Please write in ${tone} tone.{{ endif }}{{ if (style) }}${style} writing style{{ endif }}.",
-        "config":[]
+        "template": "Your task is to rewrite the entire text in better words and make it unique with natural language.output shall be in ${language}. The text to rewrite it is this:${prompt}.{{ if (tone) }}Please write in ${tone} tone.{{ endif }}{{ if (style) }}${style} writing style{{ endif }}.",
+        "config": [
+            {
+                "code": "language",
+                "name": "语言",
+                "globalValue": "language",
+                "defaultValue": ""
+            },
+            {
+                "code": "tone",
+                "name": "语调",
+                "globalValue": "writeTone",
+                "defaultValue": ""
+            },
+            {
+                "code": "style",
+                "name": "风格",
+                "globalValue": "wirteStyle",
+                "defaultValue": ""
+            }
+        ]
     },
     {
         "code": "translate",
-        "name": "翻译"
+        "name": "翻译",
+        "config": [
+            {
+                "code": "language",
+                "name": "目标语言",
+                "globalValue": "language",
+                "defaultValue": "Chinese"
+            }
+        ]
     }
 ]

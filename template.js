@@ -1,22 +1,48 @@
+import { LocalData } from "./utils.js"
+import { CacheName } from "./config.js"
+
 const Template = {
     getTemplates() {
-        return [
-            { code: "", name: "默认" },
-            { code: "content_rewrite", name: "重写文案" },
-            { code: "translate_chinese", name: "翻译中文" }
-        ]
+        const list = [{ code: "", name: "默认" }]
+        const templates = LocalData.getObject(CacheName.Templates);
+        if (templates) {
+            templates.forEach(template => {
+                list.push({
+                    code: template.code,
+                    name: template.name
+                });
+            })
+        }
+        return list
     },
     getTemplateInfo(code) {
-        return {
-            code: "content_rewrite",
-            name: "重写文案",
-            hasConfig: true,
-            template: "Your task is to rewrite the entire text in better words and make it unique with natural language.output shall be in ${language}. The text to rewrite it is this:${prompt}.{{ if (tone) }}Please write in ${tone} tone.{{ endif }}{{ if (style) }}${style} writing style{{ endif }}.",
-            config: [
-                { code: "language", name: "语言", options: [{ code: "English", name: "默认" }, { code: "Chinese", name: "中文" }] },
-                { code: "tone", name: "语调", options: [{ code: "", name: "默认" }, { code: "emotional", name: "情感" }] },
-                { code: "style", name: "风格", options: [{ code: "", name: "默认" }, { code: "poetic", name: "诗意" }] }
-            ]
+        const templates = LocalData.getObject(CacheName.Templates);
+        const globalConfig = LocalData.getObject(CacheName.GlobalConfig);
+        let globalValue = {}
+        if (globalConfig && globalConfig.globalValue) {
+            globalValue = globalConfig.globalValue;
+        }
+        if (templates) {
+            for (let i = 0; i < templates.length; i++) {
+                if (code == templates[i].code) {
+                    const newTemplate = Object.assign({}, templates[i]);
+                    if (newTemplate.config && newTemplate.config.length > 0) {
+                        newTemplate.hasConfig = true;
+                        newTemplate.config.forEach(config => {
+                            if (config.globalValue && globalValue[config.globalValue]) {
+                                config.options = globalValue[config.globalValue];
+                            }
+                            if (!config.options) {
+                                config.options = [];
+                            }
+                        })
+                    }
+                    return newTemplate;
+                }
+            }
+            return null;
+        } else {
+            return null;
         }
     }
 }

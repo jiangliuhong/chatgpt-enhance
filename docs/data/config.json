@@ -3,6 +3,10 @@
         "language": [
             {
                 "code": "Chinese",
+                "name": "默认"
+            },
+            {
+                "code": "Chinese",
                 "name": "中文"
             },
             {
@@ -12,11 +16,19 @@
         ],
         "writeTone": [
             {
+                "code": "无语调",
+                "name": "默认"
+            },
+            {
                 "code": "emotional",
                 "name": "情感"
             }
         ],
         "wirteStyle": [
+            {
+                "code": "",
+                "name": "无风格"
+            },
             {
                 "code": "poetic",
                 "name": "诗意"
