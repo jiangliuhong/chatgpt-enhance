@@ -6,7 +6,6 @@ import Client from './client.js'
 
 const ChatGPTEnhance = {
     fetch: (window._fetch = window._fetch || window.fetch),
-    mainContainer: null,
     templateInfo: null,
     templateConfigValues: {},
     debug: true,
@@ -106,7 +105,6 @@ const ChatGPTEnhance = {
             return;
         }
         let container = document.createElement('div')
-        this.mainContainer = container
         container.id = 'chatgpt-enhance';
         container.className = 'chatgpt_enhance';
         // 判断主容器是否存在
@@ -118,7 +116,11 @@ const ChatGPTEnhance = {
         const templates = Template.getTemplates()
         let templateSelectOptionsHTML = '';
         templates.forEach((template) => {
-            templateSelectOptionsHTML += `<option value="${template.code}">${template.name}</option>`;
+            let selected = "";
+            if (this.templateInfo && this.templateInfo.code == template.code) {
+                selected = "selected";
+            }
+            templateSelectOptionsHTML += `<option ${selected} value="${template.code}">${template.name}</option>`;
         })
         container.innerHTML = `
         <div class="chatgpt_enhance chatgpt_enhance_font">
@@ -137,6 +139,10 @@ const ChatGPTEnhance = {
             </div>
         </div>
         `;
+        if (this.templateInfo) {
+            // 已选中，需要重新增加操作页面
+            this.addTemplateOptions();
+        }
         container.querySelector("#chatgptEnhanceContinue").addEventListener('click', () => {
             this.log('contine button click')
         });
@@ -157,13 +163,12 @@ const ChatGPTEnhance = {
             this.templateConfigValues = newConfigValues;
             this.addTemplateOptions();
         });
-
     },
     /**
      * 新增模版选项HTML内容
      */
     addTemplateOptions() {
-        const templateOptions = this.mainContainer.querySelector("#chatgptEnhanceOptions")
+        const templateOptions = document.querySelector("#chatgptEnhanceOptions")
         if (!this.templateInfo) {
             templateOptions.innerHTML = "";
             return;
@@ -173,15 +178,23 @@ const ChatGPTEnhance = {
             templateOptions.innerHTML = "";
             return;
         }
-        
+
         let configHTML = "";
         for (var i = 0; i < 3; i++) {
             let selectHTML = "";
             if (i < this.templateInfo.config.length) {
                 const config = this.templateInfo.config[i];
+                let configSelectValue = this.templateConfigValues[config.code]
+                if (!configSelectValue) {
+                    configSelectValue = config.defaultValue;
+                }
                 selectHTML += `<label>${config.name}:</label><select name="chatgptEnhanceOptions" data-code="${config.code}">`;
                 config.options.forEach((option) => {
-                    selectHTML += `<option value="${option.code}">${option.name}</option>`;
+                    let selected = "";
+                    if (configSelectValue == option.code) {
+                        selected = "selected";
+                    }
+                    selectHTML += `<option ${selected} value="${option.code}">${option.name}</option>`;
                 });
                 selectHTML += "</select>";
             }

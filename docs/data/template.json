@@ -30,7 +30,7 @@
         "config": [
             {
                 "code": "language",
-                "name": "目标语言",
+                "name": "语言",
                 "globalValue": "language",
                 "defaultValue": "Chinese"
             }
